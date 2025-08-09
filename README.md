@@ -205,11 +205,11 @@ Help keep CPU data current:
 
 ### 🆘 **Getting Help**
 - 📖 Check this README first
-- 🐛 [Report issues](https://github.com/yourusername/Mobile-CPU-Comparison-Hub/issues)
-- 💬 [Start a discussion](https://github.com/yourusername/Mobile-CPU-Comparison-Hub/discussions)
+- 🐛 [Report issues](https://github.com/Yarondo/Mobile-CPU-Comparison-Hub/issues)
+- 💬 [Start a discussion](https://github.com/Yarondo/Mobile-CPU-Comparison-Hub/discussions)
 
 ### 📧 **Contact**
-- **GitHub**: [@yourusername](https://github.com/yourusername)
+- **GitHub**: [@Yarondo](https://github.com/Yarondo)
 - **Issues**: Use GitHub Issues for bug reports
 - **Features**: Use GitHub Discussions for feature requests
 
