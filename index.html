@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile CPU Comparison Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            animation: fadeInDown 1s ease-out;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.2rem;
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            background: #f8f9fa;
+            color: #495057;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            border: 2px solid transparent;
+        }
+
+        .filter-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #5a67d8;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .cpu-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .cpu-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .cpu-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .cpu-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .cpu-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #2d3748;
+        }
+
+        .cpu-brand {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .cpu-process {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            display: inline-block;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .spec-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .spec-item:hover {
+            background: #e9ecef;
+            transform: scale(1.02);
+        }
+
+        .spec-label {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .spec-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #2d3748;
+        }
+
+        .performance-bar {
+            margin: 20px 0;
+        }
+
+        .performance-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .bar-container {
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            height: 12px;
+            position: relative;
+        }
+
+        .bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            transition: width 1.5s ease-out;
+            position: relative;
+        }
+
+        .bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+
+        .compare-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .compare-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .compare-btn.selected {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+        }
+
+        .comparison-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .comparison-panel.active {
+            display: block;
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        .comparison-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .comparison-header h2 {
+            color: #2d3748;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 15px;
+            text-align: center;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .comparison-table th {
+            background: #f8f9fa;
+            font-weight: 700;
+            color: #4a5568;
+        }
+
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .winner-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #f6ad55, #ed8936);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .search-box {
+                min-width: auto;
+            }
+            
+            .filter-buttons {
+                justify-content: center;
+            }
+            
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .specs-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🚀 Mobile CPU Comparison Hub</h1>
+            <p>Compare the latest and greatest mobile processors with real-time performance metrics</p>
+        </header>
+
+        <div class="controls">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 Search CPUs by name or brand...">
+            </div>
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="filterByBrand('all')">All</button>
+                <button class="filter-btn" onclick="filterByBrand('apple')">Apple</button>
+                <button class="filter-btn" onclick="filterByBrand('qualcomm')">Qualcomm</button>
+                <button class="filter-btn" onclick="filterByBrand('mediatek')">MediaTek</button>
+                <button class="filter-btn" onclick="filterByBrand('samsung')">Samsung</button>
+            </div>
+        </div>
+
+        <div class="comparison-grid" id="cpuGrid">
+            <!-- CPU cards will be generated here -->
+        </div>
+
+        <div class="comparison-panel" id="comparisonPanel">
+            <div class="comparison-header">
+                <h2>🏆 Side-by-Side Comparison</h2>
+                <p>Detailed performance analysis of selected processors</p>
+            </div>
+            <div id="comparisonContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Latest mobile CPU data (2024-2025)
+        const cpuData = [
+            {
+                name: "A18 Pro",
+                brand: "Apple",
+                process: "3nm",
+                cores: "6-core",
+                gpu: "6-core GPU",
+                antutu: 1650000,
+                geekbench_single: 3350,
+                geekbench_multi: 8200,
+                power: "Very Low",
+                release: "2024"
+            },
+            {
+                name: "A17 Pro",
+                brand: "Apple",
+                process: "3nm",
+                cores: "6-core",
+                gpu: "6-core GPU",
+                antutu: 1550000,
+                geekbench_single: 2900,
+                geekbench_multi: 7200,
+                power: "Very Low",
+                release: "2023"
+            },
+            {
+                name: "Snapdragon 8 Gen 3",
+                brand: "Qualcomm",
+                process: "4nm",
+                cores: "8-core",
+                gpu: "Adreno 750",
+                antutu: 1450000,
+                geekbench_single: 2200,
+                geekbench_multi: 6800,
+                power: "High",
+                release: "2024"
+            },
+            {
+                name: "Snapdragon 8 Gen 2",
+                brand: "Qualcomm",
+                process: "4nm",
+                cores: "8-core",
+                gpu: "Adreno 740",
+                antutu: 1350000,
+                geekbench_single: 1950,
+                geekbench_multi: 5400,
+                power: "High",
+                release: "2023"
+            },
+            {
+                name: "Dimensity 9300",
+                brand: "MediaTek",
+                process: "4nm",
+                cores: "8-core",
+                gpu: "Immortalis-G720",
+                antutu: 1400000,
+                geekbench_single: 2100,
+                geekbench_multi: 6500,
+                power: "Medium",
+                release: "2024"
+            },
+            {
+                name: "Exynos 2400",
+                brand: "Samsung",
+                process: "4nm",
+                cores: "10-core",
+                gpu: "Xclipse 940",
+                antutu: 1300000,
+                geekbench_single: 1950,
+                geekbench_multi: 6200,
+                power: "High",
+                release: "2024"
+            },
+            {
+                name: "Dimensity 8300",
+                brand: "MediaTek",
+                process: "4nm",
+                cores: "8-core",
+                gpu: "Mali-G615",
+                antutu: 1100000,
+                geekbench_single: 1800,
+                geekbench_multi: 4800,
+                power: "Medium",
+                release: "2024"
+            },
+            {
+                name: "Snapdragon 7+ Gen 3",
+                brand: "Qualcomm",
+                process: "4nm",
+                cores: "8-core",
+                gpu: "Adreno 732",
+                antutu: 1000000,
+                geekbench_single: 1650,
+                geekbench_multi: 4500,
+                power: "Medium",
+                release: "2024"
+            }
+        ];
+
+        let selectedCpus = [];
+        let currentFilter = 'all';
+
+        function initApp() {
+            renderCpuCards();
+            setupSearch();
+            setTimeout(() => {
+                animatePerformanceBars();
+            }, 500);
+        }
+
+        function renderCpuCards(cpus = cpuData) {
+            const grid = document.getElementById('cpuGrid');
+            const maxAntutu = Math.max(...cpuData.map(cpu => cpu.antutu));
+            
+            grid.innerHTML = cpus.map((cpu, index) => {
+                const antutuPercent = (cpu.antutu / maxAntutu) * 100;
+                const geekbenchSinglePercent = (cpu.geekbench_single / 3350) * 100;
+                const geekbenchMultiPercent = (cpu.geekbench_multi / 8200) * 100;
+                const isWinner = cpu.antutu === maxAntutu;
+                
+                return `
+                    <div class="cpu-card" data-brand="${cpu.brand.toLowerCase()}" style="animation-delay: ${index * 0.1}s">
+                        ${isWinner ? '<div class="winner-badge">👑 Best</div>' : ''}
+                        <div class="cpu-header">
+                            <div class="cpu-brand">${cpu.brand}</div>
+                            <div class="cpu-name">${cpu.name}</div>
+                            <div class="cpu-process">${cpu.process} • ${cpu.release}</div>
+                        </div>
+                        
+                        <div class="specs-grid">
+                            <div class="spec-item">
+                                <div class="spec-label">CPU Cores</div>
+                                <div class="spec-value">${cpu.cores}</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">GPU</div>
+                                <div class="spec-value">${cpu.gpu}</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Power Usage</div>
+                                <div class="spec-value">${cpu.power}</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Process</div>
+                                <div class="spec-value">${cpu.process}</div>
+                            </div>
+                        </div>
+
+                        <div class="performance-bar">
+                            <div class="performance-label">
+                                <span>AnTuTu Score</span>
+                                <span>${cpu.antutu.toLocaleString()}</span>
+                            </div>
+                            <div class="bar-container">
+                                <div class="bar-fill" data-width="${antutuPercent}"></div>
+                            </div>
+                        </div>
+
+                        <div class="performance-bar">
+                            <div class="performance-label">
+                                <span>Geekbench Single</span>
+                                <span>${cpu.geekbench_single}</span>
+                            </div>
+                            <div class="bar-container">
+                                <div class="bar-fill" data-width="${geekbenchSinglePercent}"></div>
+                            </div>
+                        </div>
+
+                        <div class="performance-bar">
+                            <div class="performance-label">
+                                <span>Geekbench Multi</span>
+                                <span>${cpu.geekbench_multi}</span>
+                            </div>
+                            <div class="bar-container">
+                                <div class="bar-fill" data-width="${geekbenchMultiPercent}"></div>
+                            </div>
+                        </div>
+
+                        <button class="compare-btn" onclick="toggleCompare('${cpu.name}')">
+                            Add to Compare
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function animatePerformanceBars() {
+            const bars = document.querySelectorAll('.bar-fill');
+            bars.forEach(bar => {
+                const width = bar.getAttribute('data-width');
+                bar.style.width = width + '%';
+            });
+        }
+
+        function filterByBrand(brand) {
+            currentFilter = brand;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            const filteredCpus = brand === 'all' 
+                ? cpuData 
+                : cpuData.filter(cpu => cpu.brand.toLowerCase() === brand);
+            
+            renderCpuCards(filteredCpus);
+            setTimeout(animatePerformanceBars, 100);
+        }
+
+        function setupSearch() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const filteredCpus = cpuData.filter(cpu => 
+                    (currentFilter === 'all' || cpu.brand.toLowerCase() === currentFilter) &&
+                    (cpu.name.toLowerCase().includes(searchTerm) || 
+                     cpu.brand.toLowerCase().includes(searchTerm))
+                );
+                renderCpuCards(filteredCpus);
+                setTimeout(animatePerformanceBars, 100);
+            });
+        }
+
+        function toggleCompare(cpuName) {
+            const cpu = cpuData.find(c => c.name === cpuName);
+            const index = selectedCpus.findIndex(c => c.name === cpuName);
+            
+            if (index === -1) {
+                if (selectedCpus.length < 4) {
+                    selectedCpus.push(cpu);
+                } else {
+                    alert('You can compare up to 4 CPUs at a time');
+                    return;
+                }
+            } else {
+                selectedCpus.splice(index, 1);
+            }
+            
+            updateCompareButtons();
+            updateComparisonPanel();
+        }
+
+        function updateCompareButtons() {
+            document.querySelectorAll('.compare-btn').forEach(btn => {
+                const cpuName = btn.onclick.toString().match(/'([^']+)'/)[1];
+                const isSelected = selectedCpus.some(cpu => cpu.name === cpuName);
+                
+                if (isSelected) {
+                    btn.textContent = 'Remove from Compare';
+                    btn.classList.add('selected');
+                } else {
+                    btn.textContent = 'Add to Compare';
+                    btn.classList.remove('selected');
+                }
+            });
+        }
+
+        function updateComparisonPanel() {
+            const panel = document.getElementById('comparisonPanel');
+            const content = document.getElementById('comparisonContent');
+            
+            if (selectedCpus.length < 2) {
+                panel.classList.remove('active');
+                return;
+            }
+            
+            panel.classList.add('active');
+            
+            content.innerHTML = `
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Specification</th>
+                            ${selectedCpus.map(cpu => `<th>${cpu.brand} ${cpu.name}</th>`).join('')}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Process Node</strong></td>
+                            ${selectedCpus.map(cpu => `<td>${cpu.process}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <td><strong>CPU Cores</strong></td>
+                            ${selectedCpus.map(cpu => `<td>${cpu.cores}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <td><strong>GPU</strong></td>
+                            ${selectedCpus.map(cpu => `<td>${cpu.gpu}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <td><strong>AnTuTu Score</strong></td>
+                            ${selectedCpus.map(cpu => {
+                                const isHighest = cpu.antutu === Math.max(...selectedCpus.map(c => c.antutu));
+                                return `<td style="background: ${isHighest ? '#e6fffa' : 'inherit'}; font-weight: ${isHighest ? 'bold' : 'normal'};">${cpu.antutu.toLocaleString()}</td>`;
+                            }).join('')}
+                        </tr>
+                        <tr>
+                            <td><strong>Geekbench Single</strong></td>
+                            ${selectedCpus.map(cpu => {
+                                const isHighest = cpu.geekbench_single === Math.max(...selectedCpus.map(c => c.geekbench_single));
+                                return `<td style="background: ${isHighest ? '#e6fffa' : 'inherit'}; font-weight: ${isHighest ? 'bold' : 'normal'};">${cpu.geekbench_single}</td>`;
+                            }).join('')}
+                        </tr>
+                        <tr>
+                            <td><strong>Geekbench Multi</strong></td>
+                            ${selectedCpus.map(cpu => {
+                                const isHighest = cpu.geekbench_multi === Math.max(...selectedCpus.map(c => c.geekbench_multi));
+                                return `<td style="background: ${isHighest ? '#e6fffa' : 'inherit'}; font-weight: ${isHighest ? 'bold' : 'normal'};">${cpu.geekbench_multi}</td>`;
+                            }).join('')}
+                        </tr>
+                        <tr>
+                            <td><strong>Power Efficiency</strong></td>
+                            ${selectedCpus.map(cpu => `<td>${cpu.power}</td>`).join('')}
+                        </tr>
+                        <tr>
+                            <td><strong>Release Year</strong></td>
+                            ${selectedCpus.map(cpu => `<td>${cpu.release}</td>`).join('')}
+                        </tr>
+                    </tbody>
+                </table>
+            `;
+        }
+
+        // Initialize the app
+        initApp();
+    </script>
+</body>
+</html>
